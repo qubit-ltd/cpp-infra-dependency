@@ -246,7 +246,13 @@ fn test_failed_conan_redacts_url_credentials_and_sensitive_environment_in_retain
     assert_eq!(artifact["required"], false);
     let log_path = root.join(artifact["path"].as_str().expect("log path"));
     let log_bytes = fs::read(&log_path).expect("retained log bytes");
-    assert_eq!(artifact["sha256"], format!("{:x}", Sha256::digest(&log_bytes)));
+    assert_eq!(
+        artifact["sha256"],
+        Sha256::digest(&log_bytes)
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect::<String>()
+    );
     let log = String::from_utf8(log_bytes).expect("log UTF-8");
     assert!(log.contains("ssh://[REDACTED]@host.test/b"));
     let all_retained = format!("{report}{log}{}", String::from_utf8_lossy(&output.stderr));
@@ -333,7 +339,10 @@ fn test_runtime_snapshot_structure_and_tool_identity_are_checked_before_conan() 
     let binary = PathBuf::from(env!("CARGO_BIN_EXE_cpp-infra-dependency"))
         .canonicalize()
         .expect("binary");
-    let executable_sha256 = format!("{:x}", Sha256::digest(fs::read(&binary).expect("binary bytes")));
+    let executable_sha256 = Sha256::digest(fs::read(&binary).expect("binary bytes"))
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect::<String>();
     let version: Value =
         serde_json::from_slice(&fixture.run(&["--version", "--json"]).stdout).expect("version identity");
     let identity = json!({"name":"cpp-infra-dependency", "binary":binary, "protocol":1,
@@ -375,7 +384,12 @@ fn test_runtime_snapshot_structure_and_tool_identity_are_checked_before_conan() 
     for (snapshot, message) in cases {
         let bytes = serde_json::to_vec(&snapshot).expect("snapshot bytes");
         fs::write(&snapshot_path, &bytes).expect("snapshot file");
-        context["runtime_snapshot_digest"] = json!(format!("{:x}", Sha256::digest(&bytes)));
+        context["runtime_snapshot_digest"] = json!(
+            Sha256::digest(&bytes)
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect::<String>()
+        );
         write_context(&fixture, &context);
         assert_code(
             &fixture.run(&[
@@ -393,7 +407,12 @@ fn test_runtime_snapshot_structure_and_tool_identity_are_checked_before_conan() 
     }
     let bytes = b"{invalid snapshot";
     fs::write(&snapshot_path, bytes).expect("invalid snapshot bytes");
-    context["runtime_snapshot_digest"] = json!(format!("{:x}", Sha256::digest(bytes)));
+    context["runtime_snapshot_digest"] = json!(
+        Sha256::digest(bytes)
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect::<String>()
+    );
     write_context(&fixture, &context);
     assert_code(
         &fixture.run(&[
@@ -868,7 +887,12 @@ fn test_fam3_null_sync_profile_keeps_parent_identity_digest_and_runtime_guards()
         let mut context = valid.clone();
         context["runtime_snapshot"] = json!(snapshot_path);
         context["runtime_snapshot_digest"] = if digest == "actual" {
-            json!(format!("{:x}", Sha256::digest(&bytes)))
+            json!(
+                Sha256::digest(&bytes)
+                    .iter()
+                    .map(|byte| format!("{byte:02x}"))
+                    .collect::<String>()
+            )
         } else {
             json!(digest)
         };

@@ -510,10 +510,10 @@ fn test_runtime_snapshot_digest_and_executable_identity_are_verified() {
     let binary = std::path::PathBuf::from(env!("CARGO_BIN_EXE_cpp-infra-dependency"))
         .canonicalize()
         .expect("binary");
-    let s = json!({"schema":1,"bundle_id":"main-test","tools":[{"name":"cpp-infra-dependency","version":"0.1.0","revision":null,"protocol":1,"binary":binary,"executable_sha256":format!("{:x}",Sha256::digest(fs::read(&binary).expect("binary bytes")))}],"offline":true,"stale":false});
+    let s = json!({"schema":1,"bundle_id":"main-test","tools":[{"name":"cpp-infra-dependency","version":"0.1.0","revision":null,"protocol":1,"binary":binary,"executable_sha256":Sha256::digest(fs::read(&binary).expect("binary bytes")).iter().map(|byte| format!("{byte:02x}")).collect::<String>()}],"offline":true,"stale":false});
     let path = f.path().join("build/runtime.json");
     fs::write(&path, s.to_string()).expect("snapshot");
-    let c = json!({"schema":1,"run_id":"runtime-run","task_id":"dependency","bundle_id":"main-test","project":f.path().canonicalize().expect("project"),"profile":"debug","source_digest":r["source_digest"],"config_digest":r["config_digest"],"report_root":f.path().join("build/infra-runs/runtime-run"),"runtime_snapshot":path,"runtime_snapshot_digest":format!("{:x}",Sha256::digest(fs::read(&path).expect("snapshot bytes")))});
+    let c = json!({"schema":1,"run_id":"runtime-run","task_id":"dependency","bundle_id":"main-test","project":f.path().canonicalize().expect("project"),"profile":"debug","source_digest":r["source_digest"],"config_digest":r["config_digest"],"report_root":f.path().join("build/infra-runs/runtime-run"),"runtime_snapshot":path,"runtime_snapshot_digest":Sha256::digest(fs::read(&path).expect("snapshot bytes")).iter().map(|byte| format!("{byte:02x}")).collect::<String>()});
     fs::write(f.path().join("build/runtime-context.json"), c.to_string()).expect("context");
     assert_code(
         &f.run(&[
@@ -792,7 +792,10 @@ fn test_shared_run_context_keeps_each_invocations_artifacts_separate() {
         let path = root.join(a["path"].as_str().expect("path"));
         assert_eq!(
             a["sha256"],
-            format!("{:x}", Sha256::digest(fs::read(path).expect("original artifact")))
+            Sha256::digest(fs::read(path).expect("original artifact"))
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect::<String>()
         );
     }
 }
@@ -1370,7 +1373,10 @@ fn test_prepare_report_artifacts_reference_final_graph_bytes() {
         let path = root.join(artifact["path"].as_str().expect("artifact path"));
         assert_eq!(
             artifact["sha256"],
-            format!("{:x}", Sha256::digest(fs::read(path).expect("artifact bytes"))),
+            Sha256::digest(fs::read(path).expect("artifact bytes"))
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect::<String>(),
             "artifact metadata became stale: {}",
             artifact["path"]
         );

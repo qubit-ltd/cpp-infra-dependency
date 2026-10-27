@@ -22,7 +22,10 @@ use crate::result_configuration::ResultConfiguration;
 type Result<T> = std::result::Result<T, DependencyError>;
 
 pub(crate) fn sha256(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    Sha256::digest(bytes)
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect::<String>()
 }
 
 /// Resolves a project path without allowing parent components or symlink
@@ -219,7 +222,18 @@ pub(crate) fn project_digests(
             feed(&mut config, &name, &bytes);
         }
     }
-    Ok((format!("{:x}", source.finalize()), format!("{:x}", config.finalize())))
+    Ok((
+        source
+            .finalize()
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect::<String>(),
+        config
+            .finalize()
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect::<String>(),
+    ))
 }
 fn collect_project(root: &Path, directory: &Path, excluded: Option<&Path>, paths: &mut Vec<PathBuf>) -> Result<()> {
     for entry in fs::read_dir(directory)? {
