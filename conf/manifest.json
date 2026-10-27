@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "files": [
+    {
+      "source": "dependency/policy/baseline.toml",
+      "target": "policy/baseline.toml",
+      "sha256": "259682bb33c4f45f805d3ee58f34b72b76f500b3aa2dc103d5b09ede29b2113f",
+      "executable": false
+    }
+  ],
+  "project_files": [
+    {
+      "source": "dependency/config.toml",
+      "target": "config.toml",
+      "sha256": "7dd958e2cbb101a217536e6b572ecc488b09321e2ca1440a0b0db725796cd85c",
+      "executable": false
+    },
+    {
+      "source": "dependency/profiles/linux-gcc",
+      "target": "profiles/linux-gcc",
+      "sha256": "feaf4242aef7049438d8be0439f5cfee91dc2f8443350d8ad76a383481d30ae1",
+      "executable": false
+    }
+  ]
+}

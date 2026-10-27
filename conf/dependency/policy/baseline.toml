@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: Apache-2.0
+schema = 1
+baseline_id = "initial"
+internal_patterns = ["qubit-*"]
+allow_refs = []
+
+# Register every external direct requirement, including tool_requires.
+[direct]
+
+# Intersections of numeric three-part version comparisons.
+[resolved]
+
+# Explicit remote names and URLs; no remote is enabled by default.
+[remotes]

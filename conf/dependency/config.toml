@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: Apache-2.0
+schema = 1
+backend = "conan2"
+recipe = "conanfile.txt"
+policy = ".infra/dependency/policy/baseline.toml"
+timeout_seconds = 300
+
+[contexts.linux-debug]
+build_profile = ".infra/dependency/profiles/linux-gcc"
+host_profile = ".infra/dependency/profiles/linux-gcc"
+lockfile = "conan/linux-debug.lock"
+profile = "debug"
+generators_dir = "build/infra/infra-debug/conan"
+build_missing = false
+remotes = []

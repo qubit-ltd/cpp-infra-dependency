@@ -1,0 +1,30 @@
+[package]
+name = "qubit-cpp-infra-dependency"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.94"
+license = "Apache-2.0"
+description = "Conan 2 dependency policy, inventory, locks and reproducible build inputs"
+repository = "https://github.com/qubit-ltd/cpp-infra-dependency"
+include = ["src/**", "build.rs", "conf/**", "assets/**", "schemas/**", "Cargo.toml", "Cargo.lock", "LICENSE", "README.md", "README.zh_CN.md", "rust-toolchain.toml"]
+readme = "README.md"
+
+[lib]
+name = "cpp_infra_dependency"
+
+[[bin]]
+name = "cpp-infra-dependency"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+sha2 = "0.10"
+thiserror = "2"
+fs2 = "0.4"
+tempfile = "3"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+ctrlc = "3"
+libc = "0.2"
